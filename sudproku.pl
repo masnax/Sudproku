@@ -85,8 +85,8 @@ problem(3,P) :-
          [_,_,_,_,_,_,_,_,_],
          [_,_,_,_,_,_,_,_,_]].
 
-/*empty :) */
-problem(4, P) :-
+/*empty :) (like my soul) */
+problem(0, P) :-
     P = [[_,_,_,_,_,_,_,_,_],
          [_,_,_,_,_,_,_,_,_],
          [_,_,_,_,_,_,_,_,_],
@@ -97,13 +97,50 @@ problem(4, P) :-
          [_,_,_,_,_,_,_,_,_],
          [_,_,_,_,_,_,_,_,_]].
 
-solve(1) :- problem(1, Rows), sudoku(Rows),
-   maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
-solve(2) :- problem(2, Rows), hypersudoku(Rows),
-   maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
-solve(3) :- problem(3, Rows), sudokux(Rows),
-   maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
-solve(_).
 
+%TODO: error handling
+%regular sudokus
+solve(0,r) :- problem(0, Rows), sudoku(Rows),
+     maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
+solve(1,r) :- problem(1, Rows), sudoku(Rows),
+     maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
+solve(2,r) :- problem(2, Rows), sudoku(Rows),
+     maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
+solve(3,r) :- problem(3, Rows), sudoku(Rows),
+     maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
+
+%hyper sudokus
+solve(0,h) :- problem(0, Rows), hypersudoku(Rows),
+     maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
+solve(1,h) :- problem(1, Rows), hypersudoku(Rows),
+     maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
+solve(2,h) :- problem(2, Rows), hypersudoku(Rows),
+     maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
+solve(3,h) :- problem(3, Rows), hypersudoku(Rows),
+     maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
+
+%sudoku x's
+solve(0,x) :- problem(0, Rows), sudokux(Rows),
+     maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
+solve(1,x) :- problem(1, Rows), sudokux(Rows),
+     maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
+solve(2,x) :- problem(2, Rows), sudokux(Rows),
+     maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
+solve(3,x) :- problem(3, Rows), sudokux(Rows),
+     maplist(labeling([ff]), Rows), maplist(portray_clause, Rows).
+
+%ignore other cases
+solve(_,_).
+
+%unfinished versions
+get_problem(0) :- problem(0, Rows), maplist(portray_clause, Rows).
+get_problem(1) :- problem(1, Rows), maplist(portray_clause, Rows).
+get_problem(2) :- problem(2, Rows), maplist(portray_clause, Rows).
+get_problem(3) :- problem(3, Rows), maplist(portray_clause, Rows).
+get_problem(_).
 % this will parse an argument passed via the command line and run the appropriate sudoku game from above
-:- current_prolog_flag(argv, Argv),atomic_list_concat(Argv,Atom),atom_to_term(Atom,Term,[]), solve(Term), halt.
+% for solutions: first argument is the problem number, second is the sudoku type: r for regular, h for hyper, eponymous x.
+% for problems: only the problem number should be given
+:- current_prolog_flag(argv, Argv), length(Argv, N), N==2 -> nth0(0,Argv, A), atom_to_term(A,T1,[]), nth0(1,Argv,B), atom_to_term(B,T2,[]), solve(T1,T2);
+   current_prolog_flag(argv, Argv), length(Argv, N), N==1 -> nth0(0, Argv, A), atom_to_term(A, T1, []), get_problem(T1).
+:- halt.
