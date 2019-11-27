@@ -34,8 +34,8 @@ function activateButtons() {
                 }
                 return;
             case "sudokuX":
-                if (gameNum == 0 || gameNu == 3) {
-                    draw(solutions.sudokuX[0]);
+                if (gameNum == 0 || gameNum == 3) {
+                    draw(solutions.sudokuX[gameNum]);
                 } else {
                     draw(problems[0]);
                 }
