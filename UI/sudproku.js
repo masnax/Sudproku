@@ -14,7 +14,7 @@ socket.on('connect', function () {
             solutions.hyperSudoku[i] = data.solutions.h[i];
             solutions.sudokuX[i] = data.solutions.x[i];
         }
-        draw(problems[0]);
+        draw(problems[0], "r");
         activateButtons();
     });
 });
@@ -24,20 +24,20 @@ function activateButtons() {
         let gameNum = d3.select("#number").node().value;
         switch(d3.select("#game").node().value) {
             case "sudoku":
-                draw(solutions.sudoku[gameNum]);
+                draw(solutions.sudoku[gameNum], "r");
                 return;
             case "hyperSudoku":
                 if (gameNum == 0 || gameNum == 2) {
-                    draw(solutions.hyperSudoku[gameNum]);
+                    draw(solutions.hyperSudoku[gameNum], "h");
                 } else {
-                    draw(problems[0]);
+                    draw(problems[0], "r");
                 }
                 return;
             case "sudokuX":
                 if (gameNum == 0 || gameNum == 3) {
-                    draw(solutions.sudokuX[gameNum]);
+                    draw(solutions.sudokuX[gameNum], "x");
                 } else {
-                    draw(problems[0]);
+                    draw(problems[0], "r");
                 }
                 return;
             default:
@@ -47,15 +47,24 @@ function activateButtons() {
 
     d3.select("#init").on("click", () => {
         let gameNum = d3.select("#number").node().value;
-        draw(problems[gameNum]);
+        let gameType = "r";
+        switch(d3.select("#game").node().value) {
+            case "hyperSudoku":
+                gameType = "h";
+                break;
+            case "sudokuX":
+                gameType = "x";
+                break;
+        }
+        draw(problems[gameNum], gameType);
     });
 
     d3.select("#clear").on("click", () => {
-        draw(problems[0]);
+        draw(problems[0], "r");
     });
 }
 
-function getData(data) {
+function getData(data, gameType) {
     var game = data.substring(0, data.length-2).split(".");
     var matrix = Array(9).fill().map(()=>Array(9).fill());
     for(let i = 0; i < 9; i++) {
@@ -63,21 +72,35 @@ function getData(data) {
         for(let j = 0; j < 9; j++) {
             matrix[i][j] = {
                 number: row[j],
-                row: i,
-                column: j
+                special: () => {
+                    if (gameType == "x") {
+                        if(i + j == 8 || i == j) {
+                            return 1;
+                        }
+                    }
+                    if (gameType == "h") {
+                        if (i % 4) {
+                            if (j % 4) {
+                                return 1;
+                            }
+                        }
+                    }
+                    return 0;
+                }
             }
         }
     }
     return matrix;
 }
 
-function draw(game) {
+
+function draw(game, gameType) {
     var height = window.self.innerHeight;
     var boardSize = height  * 0.8;
     var gridSize = boardSize / 9;
     var boxSize = gridSize * 3;
     var container = d3.select(".container");
-    var data = getData(game);
+    var data = getData(game, gameType);
     d3.select(".container").html("");
     var wrapper = container.append("svg")
         .attr("width", boardSize)
@@ -107,7 +130,7 @@ function draw(game) {
 
     var allGrids = rows.selectAll("g")
         .data(function(d, i){
-            d.row = i;
+            d.special = i;
             return d;
         });
     var grids = allGrids.enter()
@@ -116,12 +139,16 @@ function draw(game) {
         .attr("width", gridSize)
         .attr("transform", function(d, i){
             return "translate("+ (i * gridSize) + "," + 0 + ")";
-        });
+        })
 
     grids.append("rect")
-        .classed("grid" , true)
         .attr("height", gridSize)
         .attr("width", gridSize)
+        .classed("grid" , true)
+        .classed("grid_special", (d) => {
+            return d.special();
+        })
+
 
     grids.append("text")
         .classed("number", true)

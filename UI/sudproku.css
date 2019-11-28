@@ -21,6 +21,14 @@ h1{
 .grid:hover{
     fill:rgb(160,80,80);
 }
+.grid_special{
+    fill:rgb(48,48,48);
+    stroke:rgb(100,90,90);
+    stroke-width:3;
+}
+.grid_special:hover{
+    fill:rgb(160,80,80);
+}
 .box{
     stroke:rgb(160,145,135);
     stroke-width:5;
